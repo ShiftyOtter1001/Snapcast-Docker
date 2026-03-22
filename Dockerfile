@@ -1,35 +1,39 @@
+FROM debian:bookworm-slim AS snapserver
+
+ARG SNAPCAST_VERSION=0.34.0
+
+RUN apt-get update && apt-get install -y \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN wget -q https://github.com/snapcast/snapcast/releases/download/v${SNAPCAST_VERSION}/snapserver_${SNAPCAST_VERSION}-1_amd64_debian_bookworm.deb
+
+
+# Pull go-librespot prebuilt binary
+FROM ghcr.io/devgianlu/go-librespot:latest AS golibrespot
+
+
+# Final image
 FROM debian:bookworm-slim
 
 ARG SNAPCAST_VERSION=0.34.0
-ARG SNAPWEB_VERSION=0.9.3
 
-# Install base dependencies + ffmpeg
 RUN apt-get update && apt-get install -y \
-    wget \
-    unzip \
     ffmpeg \
     libssl3 \
     libavahi-client3 \
     avahi-daemon \
-    build-essential \
-    libasound2-dev \
-    cargo \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Install librespot via cargo (no prebuilt debian package exists)
-RUN cargo install librespot \
-    && mv /root/.cargo/bin/librespot /usr/bin/librespot
-
-# Install snapserver from official GitHub releases
-RUN wget -q https://github.com/snapcast/snapcast/releases/download/v${SNAPCAST_VERSION}/snapserver_${SNAPCAST_VERSION}-1_amd64_debian_bookworm.deb \
-    && dpkg -i snapserver_${SNAPCAST_VERSION}-1_amd64_debian_bookworm.deb \
+# Copy snapserver deb from build stage and install it
+COPY --from=snapserver /snapserver_${SNAPCAST_VERSION}-1_amd64_debian_bookworm.deb /tmp/
+RUN dpkg -i /tmp/snapserver_${SNAPCAST_VERSION}-1_amd64_debian_bookworm.deb \
     && apt-get install -f -y \
-    && rm snapserver_${SNAPCAST_VERSION}-1_amd64_debian_bookworm.deb
+    && rm /tmp/snapserver_${SNAPCAST_VERSION}-1_amd64_debian_bookworm.deb
 
-# Install snapweb from official GitHub releases
-RUN wget -q https://github.com/snapcast/snapweb/releases/download/v${SNAPWEB_VERSION}/snapweb_${SNAPWEB_VERSION}-1_all.deb \
-    && dpkg -i snapweb_${SNAPWEB_VERSION}-1_all.deb \
-    && rm snapweb_${SNAPWEB_VERSION}-1_all.deb
+# Copy go-librespot binary from its image
+COPY --from=golibrespot /go-librespot /usr/bin/go-librespot
 
 EXPOSE 1704 1705 1780
 
