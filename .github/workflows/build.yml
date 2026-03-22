@@ -27,13 +27,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-     - name: Download go-librespot
+      - name: Download go-librespot
         run: |
           wget -q https://github.com/devgianlu/go-librespot/releases/latest/download/go-librespot_linux_x86_64.tar.gz
           tar -xzf go-librespot_linux_x86_64.tar.gz
           chmod +x go-librespot
           echo "Binary ready"
-
+          
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
