@@ -27,12 +27,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download go-librespot
+     - name: Download go-librespot
         run: |
           wget -q https://github.com/devgianlu/go-librespot/releases/latest/download/go-librespot_linux_x86_64.tar.gz
           tar -xzf go-librespot_linux_x86_64.tar.gz
-          ls -la
-          mv go-librespot_linux_x86_64/go-librespot ./go-librespot || mv go-librespot ./go-librespot
           chmod +x go-librespot
           echo "Binary ready"
 
