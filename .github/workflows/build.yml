@@ -39,5 +39,5 @@ jobs:
           build-args: |
             SNAPCAST_VERSION=${{ github.event.inputs.snapcast_version || '0.35.0' }}
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.event.inputs.snapcast_version || '0.35.0' }}
+            ghcr.io/shiftyotter1001/snapcast-docker:latest
+            ghcr.io/shiftyotter1001/snapcast-docker:${{ github.event.inputs.snapcast_version || '0.35.0' }}
