@@ -31,13 +31,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Download go-librespot
+        run: |
+          curl -s https://api.github.com/repos/devgianlu/go-librespot/releases/latest \
+            | grep "browser_download_url" \
+            | grep "linux_amd64" \
+            | cut -d '"' -f 4 \
+            | xargs wget -q -O go-librespot.tar.gz
+          tar -xzf go-librespot.tar.gz
+          # find the binary however it's named in the archive
+          find . -name 'go-librespot' -type f | head -1 | xargs -I{} cp {} ./go-librespot-bin
+          mv go-librespot-bin go-librespot
+          chmod +x go-librespot
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           build-args: |
-            SNAPCAST_VERSION=${{ github.event.inputs.snapcast_version || '0.35.0' }}
+            SNAPCAST_VERSION=${{ github.event.inputs.snapcast_version || '0.34.0' }}
           tags: |
             ghcr.io/shiftyotter1001/snapcast-docker:latest
-            ghcr.io/shiftyotter1001/snapcast-docker:${{ github.event.inputs.snapcast_version || '0.35.0' }}
+            ghcr.io/shiftyotter1001/snapcast-docker:${{ github.event.inputs.snapcast_version || '0.34.0' }}
