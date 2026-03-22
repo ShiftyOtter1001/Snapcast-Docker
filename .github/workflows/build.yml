@@ -38,26 +38,11 @@ jobs:
 
       - name: Download go-librespot
         run: |
-          # Get the download URL for the latest linux amd64 release
-          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/devgianlu/go-librespot/releases/latest \
+          # Dump all asset names so we can see exactly what they're called
+          curl -s https://api.github.com/repos/devgianlu/go-librespot/releases/latest \
             | grep "browser_download_url" \
-            | grep "linux_amd64" \
-            | cut -d '"' -f 4)
-          echo "Found URL: $DOWNLOAD_URL"
-          
-          # Download and extract
-          wget -q "$DOWNLOAD_URL" -O go-librespot.tar.gz
-          tar -xzf go-librespot.tar.gz
-          
-          # Show what was extracted so we can see the structure
-          ls -la
-          
-          # Copy whichever file is the binary (not the .tar.gz)
-          find . -maxdepth 2 -type f -name 'go-librespot' -exec cp {} ./go-librespot-final \;
-          mv go-librespot-final go-librespot
-          chmod +x go-librespot
-          echo "go-librespot ready: $(./go-librespot --version 2>&1 || echo 'binary present')"
-
+            | cut -d '"' -f 4
+            
       - name: Build and push
         uses: docker/build-push-action@v5
         env:
